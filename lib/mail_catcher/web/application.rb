@@ -83,6 +83,7 @@ module MailCatcher
       end
 
       get "/messages/filter/:recipient" do
+        recipient = params[:recipient].to_s
         if messages = Mail.messages_with_recipient(recipient)
           content_type :json
           JSON.generate(messages)
