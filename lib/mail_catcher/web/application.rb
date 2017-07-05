@@ -83,7 +83,7 @@ module MailCatcher
       end
 
       get "/messages/filter/:recipient" do
-        recipient = params[:recipient].to_s
+        recipient = params[:recipient]
         if messages = Mail.messages_with_recipient(recipient)
           content_type :json
           JSON.generate(messages)
@@ -93,7 +93,7 @@ module MailCatcher
       end
 
       get "/messages/since/:time" do
-        time = params[:recipient].to_f
+        time = params[:time].to_f
         if messages = Mail.messages_since_time(time)
           content_type :json
           JSON.generate(messages)
