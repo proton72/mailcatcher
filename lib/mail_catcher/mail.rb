@@ -77,6 +77,15 @@ module MailCatcher::Mail extend self
     end
   end
 
+  def messages_with_recipient(recipient)
+    @messages_query ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE recipients LIKE ? ORDER BY created_at, id ASC"
+    @messages_query.execute("%" + recipient + "%").map do |row|
+      Hash[row.fields.zip(row)].tap do |message|
+        message["recipients"] &&= JSON.parse(message["recipients"])
+      end
+    end
+  end
+
   def message(id)
     @message_query ||= db.prepare "SELECT * FROM message WHERE id = ? LIMIT 1"
     row = @message_query.execute(id).next

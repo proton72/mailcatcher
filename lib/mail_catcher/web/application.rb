@@ -82,6 +82,15 @@ module MailCatcher
         end
       end
 
+      get "/messages/filter/:recipient" do
+        if messages = Mail.messages_with_recipient(recipient)
+          content_type :json
+          JSON.generate(messages)
+        else
+          not_found
+        end
+      end
+
       delete "/messages" do
         Mail.delete!
         status 204
