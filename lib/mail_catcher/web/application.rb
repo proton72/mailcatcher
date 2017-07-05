@@ -92,6 +92,16 @@ module MailCatcher
         end
       end
 
+      get "/messages/since/:time" do
+        time = params[:recipient].to_f
+        if messages = Mail.messages_since_time(time)
+          content_type :json
+          JSON.generate(messages)
+        else
+          not_found
+        end
+      end
+
       delete "/messages" do
         Mail.delete!
         status 204
