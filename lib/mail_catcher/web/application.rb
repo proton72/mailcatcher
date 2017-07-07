@@ -61,7 +61,7 @@ module MailCatcher
       end
 
       get "/messages" do
-        if request.websocket && request.path_parameters.size == 0
+        if (request.websocket && request.path_parameters.size == 0)
           request.websocket!(
             :on_start => proc do |websocket|
               subscription = Events::MessageAdded.subscribe do |message|
