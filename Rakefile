@@ -1,6 +1,11 @@
 require "fileutils"
 require "rubygems"
 
+#this will be the absolute path to lib based on the calling __FILE__
+lib = File.expand_path('../lib', __FILE__)
+#this will include the path in $LOAD_PATH unless it is already included
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
 require "mail_catcher/version"
 
 # XXX: Would prefer to use Rake::SprocketsTask but can't populate

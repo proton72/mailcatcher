@@ -61,7 +61,7 @@ module MailCatcher
       end
 
       get "/messages" do
-        if (request.websocket && request.path_parameters.size == 0)
+        if (request.websocket? && request.params.size == 0)
           request.websocket!(
             :on_start => proc do |websocket|
               subscription = Events::MessageAdded.subscribe do |message|
@@ -78,14 +78,18 @@ module MailCatcher
             end)
         else
           content_type :json
-          if request.path_parameters.size == 0
+          recipient = request.params["recipient"]
+          sinceTime = request.params["sinceTime"]
+          puts "==> recipient: #{recipient}"
+          puts "==> sinceTime: #{sinceTime}"
+          if (!recipient && !sinceTime)
             JSON.generate(Mail.messages)
-          end
-          if request.path_parameters["recipient"] != nil
-            JSON.generate(Mail.messages_with_recipient(request.path_parameters["recipient"]))
-          end
-          if request.path_parameters["sinceTime"] != nil
-            JSON.generate(Mail.messages_since_time(request.path_parameters["sinceTime"].to_f))
+          elsif (recipient && sinceTime)
+              JSON.generate(Mail.messages_with_recipient_since(recipient.to_s, sinceTime.to_f))
+          elsif recipient
+              JSON.generate(Mail.messages_with_recipient(recipient.to_s))
+          else
+              JSON.generate(Mail.messages_since_time(sinceTime.to_f)) 
           end
         end
       end
