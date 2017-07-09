@@ -85,11 +85,11 @@ module MailCatcher
           if (!recipient && !sinceTime)
             JSON.generate(Mail.messages)
           elsif (recipient && sinceTime)
-              JSON.generate(Mail.messages_with_recipient_since(recipient.to_s, sinceTime.to_f))
+              JSON.generate(Mail.messages_with_recipient_since(recipient, sinceTime))
           elsif recipient
-              JSON.generate(Mail.messages_with_recipient(recipient.to_s))
+              JSON.generate(Mail.messages_with_recipient(recipient))
           else
-              JSON.generate(Mail.messages_since_time(sinceTime.to_f)) 
+              JSON.generate(Mail.messages_since_time(sinceTime)) 
           end
         end
       end

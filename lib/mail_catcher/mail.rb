@@ -78,8 +78,9 @@ module MailCatcher::Mail extend self
   end
 
   def messages_with_recipient(recipient)
-    @messages_query ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE recipients LIKE ? ORDER BY created_at, id ASC"
-    @messages_query.execute("%" + recipient + "%").map do |row|
+    @messages_with_recipient ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE recipients LIKE :recipient ORDER BY created_at, id ASC"
+    puts "==> recipientBound: #{recipient}"
+    @messages_with_recipient.execute('recipient' => "%#{recipient}%").map do |row|
       Hash[row.fields.zip(row)].tap do |message|
         message["recipients"] &&= JSON.parse(message["recipients"])
       end
@@ -87,8 +88,9 @@ module MailCatcher::Mail extend self
   end
 
   def messages_since_time(time)
-    @messages_query ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE created_at > datetime(?, 'unixepoch') ORDER BY created_at, id ASC"
-    @messages_query.execute(time).map do |row|
+    @messages_since_time ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE created_at > datetime(:time, 'unixepoch') ORDER BY created_at, id ASC"  
+    puts "==> timeBound: #{time}"
+    @messages_since_time.execute('time' => time).map do |row|
       Hash[row.fields.zip(row)].tap do |message|
         message["recipients"] &&= JSON.parse(message["recipients"])
       end
@@ -97,8 +99,10 @@ module MailCatcher::Mail extend self
 
   
   def messages_with_recipient_since(recipient, time)
-    @messages_query ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE recipients LIKE ? AND created_at > datetime(?, 'unixepoch') ORDER BY created_at, id ASC"
-    @messages_query.execute("%" + recipient + "%", time).map do |row|
+    @messages_with_recipient_since ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE recipients LIKE :recipient AND created_at > datetime(:time, 'unixepoch') ORDER BY created_at, id ASC"
+    puts "==> recipientBound: #{recipient}"
+    puts "==> timeBound: #{time}"
+    @messages_with_recipient_since.execute('recipient' => "%#{recipient}%", 'time' => time ).map do |row|
       Hash[row.fields.zip(row)].tap do |message|
         message["recipients"] &&= JSON.parse(message["recipients"])
       end
