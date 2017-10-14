@@ -88,7 +88,7 @@ module MailCatcher::Mail extend self
   end
 
   def messages_since_time(time)
-    @messages_since_time ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE created_at > datetime(:time, 'unixepoch') ORDER BY created_at, id ASC"  
+    @messages_since_time ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE created_at > datetime(:time, 'unixepoch') ORDER BY created_at, id ASC"
     puts "==> timeBound: #{time}"
     @messages_since_time.execute('time' => time).map do |row|
       Hash[row.fields.zip(row)].tap do |message|
@@ -97,7 +97,7 @@ module MailCatcher::Mail extend self
     end
   end
 
-  
+
   def messages_with_recipient_since(recipient, time)
     @messages_with_recipient_since ||= db.prepare "SELECT id, sender, recipients, subject, size, created_at FROM message WHERE recipients LIKE :recipient AND created_at > datetime(:time, 'unixepoch') ORDER BY created_at, id ASC"
     puts "==> recipientBound: #{recipient}"
@@ -189,4 +189,11 @@ module MailCatcher::Mail extend self
     @delete_messages_query.execute(message_id) and
     @delete_message_parts_query.execute(message_id)
   end
+
+   def delete_messages_older_than!(time)
+     @delete_old_messages_query ||= db.prepare "DELETE FROM message WHERE created_at < datetime(:time, 'unixepoch')"
+     @delete_old_message_parts_query ||= db.prepare "DELETE FROM message_part WHERE created_at < datetime(:time, 'unixepoch')"
+     @delete_old_messages_query.execute(time) and
+     @delete_old_message_parts_query.execute(time)
+   end
 end

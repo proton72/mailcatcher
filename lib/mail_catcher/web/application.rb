@@ -94,8 +94,14 @@ module MailCatcher
         end
       end
 
-      delete "/messages" do
-        Mail.delete!
+      delete "/messages"
+        time = request.params["olderThan"]
+        puts "==> time: #{time}"
+        if (!time)
+            Mail.delete!
+        else
+            Mail.delete_messages_older_than!(time)
+        end
         status 204
       end
 
